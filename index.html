@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>weather ⛅️</title>
+    <style>
+      body, html {
+        height: 100%;
+      }
+      body {
+        background-color: #eee;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-size: 20px;
+        font-weight: lighter;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      h1, p {
+        margin: 0 0 1rem 0;
+      }
+
+      .container {
+        width: 400px;
+        display: flex;
+        flex-direction: column;
+        border: 1px
+      }
+
+      .form {
+        display: flex;
+      }
+
+      .form > input {
+        flex: 1;
+        padding: 1em;
+        font-size: 1em;
+        margin: 0;
+        border-radius: 0.5rem 0 0 0.5rem;
+        border: 1px solid;
+        border-right: none;
+      }
+
+      .form > button {
+        padding: 0 1em;
+        background-color: rgb(106, 177, 238);
+        color: #fff;
+        font-size: 1em;
+        border: 1px solid;
+        margin: 0;
+        border-radius: 0 0.5rem 0.5rem 0;
+        border: 1px solid #000;
+        border-left: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="name">
+        <!-- name -->
+      </h1>
+      <h1 id="temp">
+        <!-- temp -->
+      </h1>
+      <p id="desc">
+        <!-- description -->
+      </p>
+      <select id="unit" name="unit">
+        <option id="imperial">Fahrenheit</option>
+        <option id="metric">Celcius</option>
+      </select>
+      <form class="form" id="zipForm">
+        <input 
+          id="zip" 
+          type="number" 
+          placeholder="zip code"
+          title="Please Enter a Valid Zip Code"
+          pattern="^\d{5}(?:[-\s]\d{4})?$"
+        >
+        <button type="submit">Search</button>
+      </form>
+      <form class="form" id="cityForm">
+        <input 
+          id="city" 
+          type="text" 
+          placeholder="city name"
+          title="Please Enter a City Name"
+        >
+        <button type="submit">Search</button>
+      </form>
+      <form class="form" id="geoForm">
+        <input 
+          id="lat" 
+          type="number"
+          step="0.000000000000001"
+          placeholder="latitude"
+          title="Please Enter a Valid Latitude"
+        >
+        <input 
+          id="lon" 
+          type="number" 
+          step="0.000000000000001"
+          placeholder="longitude"
+          title="Please Enter a Valid Longitude"
+        >
+        <button type="submit">Search</button>
+    </div>
+
+    <script type="module">
+      // ------------------------------------------------------
+      // Developer Code
+      import { getWeatherByZip, getWeatherByCity, getWeatherByGeo } from './getWeather.js';
+
+      const apiToken = 'PUT YOUR OWN OPENWEATHERAPP API KEY HERE!'
+
+      // Get Element refererences
+      const nameEl = document.getElementById('name');
+      const tempEl = document.getElementById('temp');
+      const descEl = document.getElementById('desc');
+
+      const zipFormEl = document.getElementById('zipForm');
+      const zipInput = document.getElementById('zip');
+
+      const cityFormEl = document.getElementById('cityForm');
+      const cityInput = document.getElementById('city');
+
+      const geoFormEl = document.getElementById('geoForm');
+      const latInput = document.getElementById('lat');
+      const lonInput = document.getElementById('lon');
+
+      const unitInput = document.getElementById('unit');
+
+      function myDisplayer({name, temp, desc}) {
+        nameEl.innerHTML = name;
+        tempEl.innerHTML = temp;
+        descEl.innerHTML = desc;
+      }
+
+      function configureUnit(unit) {
+        if (unit === 'Fahrenheit') {
+          return 'imperial';
+        } else if (unit === 'Celcius') {
+          return 'metric';
+        }
+      }
+
+      // Define event listeners
+      zipFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const zip = zipInput.value;
+        // let unit = unitInput.value
+        const unit = configureUnit(unitInput.value);
+        // getWeather('apiToken', zip, myDisplayer)
+        // getWeather('apiToken', zip).then((data) => {
+        //   myDisplayer(data)
+        // })
+        const data = await getWeatherByZip(zip, apiToken, unit);
+        myDisplayer(data);
+      })
+
+      cityFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const city = cityInput.value;
+        const unit = configureUnit(unitInput.value);
+        const data = await getWeatherByCity(city, apiToken, unit);
+        myDisplayer(data);
+      })
+
+      geoFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const latitude = latInput.value;
+        const longitude = lonInput.value;
+        const unit = configureUnit(unitInput.value);
+        const data = await getWeatherByGeo(latitude, longitude, apiToken, unit);
+        myDisplayer(data);
+      })
+
+    </script>
+  </body>
+</html>
